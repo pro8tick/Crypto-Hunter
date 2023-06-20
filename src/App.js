@@ -1,24 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import './app.css'
+import Header from './Components/Header';
+import Home from './Pages/Home';
+import Coins from './Pages/Coins';
+import { makeStyles } from '@material-ui/core';
+import { CryptoContext } from './Context/CryptoContext';
+import { QueryClient, QueryClientProvider } from 'react-query';
+
+const queryClient = new QueryClient()
 
 function App() {
+  const useStyle = makeStyles(()=>({
+    App:{
+      backgroundColor:"#14161a",
+      color:"white",
+      minHeight:"100vh"
+    }
+  }))
+
+  const classes = useStyle();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+    <QueryClientProvider client={queryClient}>      
+      <BrowserRouter>
+        <div className={classes.App}>
+          <CryptoContext>            
+            <Header/>
+            <Routes>
+              <Route path ='/' element={<Home/>}/>
+              <Route path ='/coins/:id' element={<Coins/>}/>
+            </Routes>
+          </CryptoContext>
+        </div>
+      </BrowserRouter>
+    </QueryClientProvider>
+    </>
+   
   );
 }
 
