@@ -1,12 +1,15 @@
-import React from 'react'
+import React,{ Suspense } from 'react'
 import Banner from '../Components/Banner/Banner'
-import Coinstable from '../Components/Coinstable'
+
+const Coinstable = React.lazy(()=>import('../Components/Coinstable'))
 
 function Home() {
   return (
     <div>
         <Banner/>
-        <Coinstable/>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Coinstable/>
+        </Suspense>
     </div>
   )
 }

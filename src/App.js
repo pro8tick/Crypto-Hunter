@@ -1,13 +1,12 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './app.css'
 import Header from './Components/Header';
-import Home from './Pages/Home';
-import Coins from './Pages/Coins';
 import { makeStyles } from '@material-ui/core';
-
-
 import Alert  from './Components/Alert'
+import { lazy,Suspense } from 'react';
 
+const Home = lazy(() => import("./Pages/Home"));
+const Coins = lazy(() => import("./Pages/Coins"));
 
 
 function App() {
@@ -27,10 +26,12 @@ function App() {
       <BrowserRouter>
         <div className={classes.App}>                    
             <Header/>
-            <Routes>
-              <Route path ='/' element={<Home/>}/>
-              <Route path ='/coins/:id' element={<Coins/>}/>
-            </Routes>      
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                  <Route path ='/' element={<Home/>}/>
+                  <Route path ='/coins/:id' element={<Coins/>}/>
+              </Routes>      
+            </Suspense>
         </div>
         <Alert/>
       </BrowserRouter>      
