@@ -4,10 +4,11 @@ import Header from './Components/Header';
 import Home from './Pages/Home';
 import Coins from './Pages/Coins';
 import { makeStyles } from '@material-ui/core';
-import { CryptoContext } from './Context/CryptoContext';
-import { QueryClient, QueryClientProvider } from 'react-query';
 
-const queryClient = new QueryClient()
+
+import Alert  from './Components/Alert'
+
+
 
 function App() {
   const useStyle = makeStyles(()=>({
@@ -22,19 +23,18 @@ function App() {
 
   return (
     <>
-    <QueryClientProvider client={queryClient}>      
+        
       <BrowserRouter>
-        <div className={classes.App}>
-          <CryptoContext>            
+        <div className={classes.App}>                    
             <Header/>
             <Routes>
               <Route path ='/' element={<Home/>}/>
               <Route path ='/coins/:id' element={<Coins/>}/>
-            </Routes>
-          </CryptoContext>
+            </Routes>      
         </div>
-      </BrowserRouter>
-    </QueryClientProvider>
+        <Alert/>
+      </BrowserRouter>      
+  
     </>
    
   );

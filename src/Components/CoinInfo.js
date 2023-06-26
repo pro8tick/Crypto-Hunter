@@ -1,5 +1,4 @@
-import axios from "axios";
-import React ,{useState,useEffect} from 'react'
+import React ,{useState} from 'react'
 import useCryptoContext from '../Context/CryptoContext'
 import { UseGetCointData } from '../Hooks/GetCoinsByProperty'
 import { HistoricalChart } from '../Config/api'
@@ -27,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 function CoinInfo({coin}) {
-    const {currency,symbol} = useCryptoContext()
+    const {currency} = useCryptoContext()
     const [days, setDays] = useState(1)
     const classes = useStyles()
 
@@ -47,7 +46,7 @@ function CoinInfo({coin}) {
   return (
    <ThemeProvider theme={darkTheme}>
         <div className={classes.container}>
-            {!historicData | isFetching ? (
+            {!historicData || isFetching ? (
             <CircularProgress
                 style={{ color: "gold" }}
                 size={250}
@@ -106,4 +105,4 @@ function CoinInfo({coin}) {
   )
 }
 
-export default CoinInfo
+export default React.memo(CoinInfo)

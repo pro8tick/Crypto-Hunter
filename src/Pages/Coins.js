@@ -1,12 +1,15 @@
 import React from 'react'
 import { UseGetCointData } from '../Hooks/GetCoinsByProperty'
 import { SingleCoin } from '../Config/api'
-import { LinearProgress, Typography, makeStyles } from '@material-ui/core'
+import { Button, LinearProgress, Typography, makeStyles } from '@material-ui/core'
 import CoinInfo from '../Components/CoinInfo'
 import useCryptoContext from '../Context/CryptoContext'
 import { useParams } from 'react-router-dom'
 import ReactHtmlParser from 'react-html-parser'
 import { numberWithComma } from '../Components/Banner/Carausal'
+import { doc, setDoc } from 'firebase/firestore'
+import { db } from '../firebase'
+
 
 const useStyles = makeStyles((theme)=>({
     container:{
@@ -30,7 +33,8 @@ const useStyles = makeStyles((theme)=>({
     heading:{
       fontWeight:"bold",
       marginBottom:20,
-      fontFamily:"Montserrat"
+      fontFamily:"Montserrat",
+      marginLeft:"40px"
     },
     description:{
       width:"100%",
@@ -47,9 +51,6 @@ const useStyles = makeStyles((theme)=>({
       width: "100%",
       [theme.breakpoints.down("md")]: {
         display: "flex",
-        justifyContent: "space-around",
-      },
-      [theme.breakpoints.down("sm")]: {
         flexDirection: "column",
         alignItems: "center",
       },
@@ -61,11 +62,58 @@ const useStyles = makeStyles((theme)=>({
 }))
 
 function Coins() {
-  const {currency,symbol} = useCryptoContext()
+  const {currency,symbol,setAlert,user,watchList} = useCryptoContext()
   const {id}= useParams() 
   const classes= useStyles()
   const {data:coin,isLoading,isError} = UseGetCointData(SingleCoin(id),["single-coin",id])
 
+  const inWatchlist = watchList.includes(coin?.id);
+
+  const addToWatchlist = async () => {
+    const coinRef = doc(db, "watchlist", user.uid);
+    try {
+      await setDoc(
+        coinRef,
+        { coins: watchList ? [...watchList, coin?.id] : [coin?.id] },
+        { merge: true }
+      );
+
+      setAlert({
+        open: true,
+        message: `${coin.name} Added to the Watchlist !`,
+        type: "success",
+      });
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error",
+      });
+    }
+  };
+
+  const removeFromWatchlist = async () => {
+    const coinRef = doc(db, "watchlist", user.uid);
+    try {
+      await setDoc(
+        coinRef,
+        { coins: watchList.filter((wish) => wish !== coin?.id) },
+        { merge: true }
+      );
+
+      setAlert({
+        open: true,
+        message: `${coin.name} Removed from the Watchlist !`,
+        type: "success",
+      });
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error",
+      });
+    }
+  };
 
   if (isLoading) return <LinearProgress style={{ backgroundColor: "gold" }} />;
 
@@ -78,7 +126,7 @@ function Coins() {
             height="200"
             style={{marginBottom:20}}
           />
-          <Typography variant='h3' className={classes.heading}>
+          <Typography variant='h3' className={classes.heading} >
             {coin?.name}
           </Typography>
           <Typography variant='subtitle1' className={classes.description}>
@@ -139,6 +187,19 @@ function Coins() {
                 M
               </Typography>
             </span>
+            {user && (
+            <Button
+              variant="outlined"
+              style={{
+                width: "100%",
+                height: 40,
+                backgroundColor: inWatchlist ? "#ff0000" : "#EEBC1D",
+              }}
+              onClick={inWatchlist ? removeFromWatchlist : addToWatchlist}
+            >
+              {inWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
+            </Button>
+          )}
           </div>
       </div>
       <CoinInfo coin={coin}/>
